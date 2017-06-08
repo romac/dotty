@@ -615,10 +615,15 @@ trait Implicits { self: Typer =>
             notFound <- formalValue.typeSymbol.getAnnotation(defn.ImplicitNotFoundAnnot)
             Trees.Literal(Constant(raw: String)) <- notFound.argument(0)
           } {
+            val tparams = formalValue match {
+              case hk: HKApply => hk.underlying.typeParams
+              case _ => formalValue.typeSymbol.typeParams
+            }
+
             msgFn = where =>
               err.implicitNotFoundString(
                 raw,
-                formalValue.typeSymbol.typeParams.map(_.name.unexpandedName.toString),
+                tparams.map(_.paramName.unexpandedName.toString),
                 formalValue.argInfos)
           }
           error(msgFn)
