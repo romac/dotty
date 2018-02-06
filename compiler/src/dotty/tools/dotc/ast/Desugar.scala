@@ -1237,9 +1237,19 @@ object desugar {
         // This is a deliberate departure from scalac, where StringContext is not rooted (See #4732)
         Apply(Select(Apply(scalaDot(nme.StringContext), strs), id), elems)
       case InfixOp(l, op, r) =>
-        if (ctx.mode is Mode.Type)
-          AppliedTypeTree(op, l :: r :: Nil) // op[l, r]
-        else {
+        if (ctx.mode is Mode.Type) {
+          def appliedTypeTree = AppliedTypeTree(op, l :: r :: Nil) // op[l, r]
+          if (!op.isBackquoted)
+            op.name match {
+              case tpnme.raw.AMP => AndTypeTree(l, r) // l & r
+              case tpnme.raw.BAR => OrTypeTree(l, r)  // l | r
+              case tpnme.raw.BANG =>
+                // TODO: Check whether the owner corresponds to a ValDef (no convenient helper for this atm?)
+                PredicateTypeTree(ValDef(ctx.owner.name.asTermName, l, EmptyTree).withFlags(Param), r)
+              case _ => appliedTypeTree
+            }
+          else appliedTypeTree
+        } else {
           assert(ctx.mode is Mode.Pattern) // expressions are handled separately by `binop`
           Apply(op, l :: r :: Nil) // op(l, r)
         }
