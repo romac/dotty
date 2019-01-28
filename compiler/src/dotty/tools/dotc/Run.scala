@@ -118,7 +118,7 @@ class Run(comp: Compiler, ictx: Context) extends ImplicitRunInfo with Constraint
     compileSources(sources)
   } catch {
     case NonFatal(ex) =>
-      ctx.echo(i"exception occurred while compiling $units%, %")
+      // ctx.echo(i"exception occurred while compiling $units%, %")
       throw ex
   }
 

@@ -579,7 +579,7 @@ trait Checking {
 
   /** Check that type `tp` is stable. */
   def checkStable(tp: Type, pos: Position)(implicit ctx: Context): Unit =
-    if (!tp.isStable) ctx.error(ex"$tp is not stable", pos)
+    () // if (!tp.isStable) ctx.error(ex"$tp is not stable", pos)
 
   /** Check that all type members of `tp` have realizable bounds */
   def checkRealizableBounds(cls: Symbol, pos: Position)(implicit ctx: Context): Unit = {
